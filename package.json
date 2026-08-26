@@ -1,0 +1,17 @@
+{
+  "name": "automation-challenge-playwright",
+  "version": "1.0.0",
+  "description": "Playwright automation for The Automation Challenge — reads Excel/CSV and fills dynamic form",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "axios": "^1.4.0",
+    "dotenv": "^16.0.0",
+    "playwright": "^1.40.0",
+    "xlsx": "^0.18.5"
+  },
+  "author": "",
+  "license": "MIT"
+}
