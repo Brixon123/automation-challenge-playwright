@@ -48,8 +48,106 @@ function readExcel(filePath) {
   return rows;
 }
 
+function normalizeFieldName(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function getFieldPatterns(labelText) {
+  const raw = normalizeFieldName(labelText);
+  const aliases = new Set();
+  const map = {
+    'employer identification number': ['ein_input_field', 'employer_identification_number_input_field'],
+    'employer_identification_number': ['ein_input_field', 'employer_identification_number_input_field'],
+    'company name': ['company_name_input_field'],
+    'company_name': ['company_name_input_field'],
+    company: ['company_name_input_field'],
+    name: ['company_name_input_field'],
+    'company address': ['address_input_field', 'company_address_input_field'],
+    'company_address': ['address_input_field', 'company_address_input_field'],
+    address: ['address_input_field'],
+    sector: ['sector_input_field'],
+    'automation tool': ['automation_tool_input_field'],
+    'automation_tool': ['automation_tool_input_field'],
+    tool: ['automation_tool_input_field'],
+    'annual automation saving': ['annual_saving_input_field', 'annual_automation_saving_input_field'],
+    'annual_automation_saving': ['annual_saving_input_field', 'annual_automation_saving_input_field'],
+    'annual saving': ['annual_saving_input_field', 'annual_automation_saving_input_field'],
+    annual_saving: ['annual_saving_input_field', 'annual_automation_saving_input_field'],
+    saving: ['annual_saving_input_field'],
+    'date of first project': ['date_input_field', 'date_of_first_project_input_field'],
+    'date_of_first_project': ['date_input_field', 'date_of_first_project_input_field'],
+    date: ['date_input_field'],
+    ein: ['ein_input_field'],
+    'ein': ['ein_input_field']
+  };
+
+  for (const [key, patterns] of Object.entries(map)) {
+    const variants = new Set([
+      key,
+      key.replace(/\s+/g, '_'),
+      key.replace(/\s+/g, ''),
+      normalizeFieldName(key)
+    ]);
+
+    if (Array.from(variants).some(v => raw === v || raw.includes(v))) {
+      patterns.forEach(p => aliases.add(p));
+    }
+  }
+
+  if (aliases.size === 0) {
+    aliases.add(raw.replace(/\s+/g, '_'));
+    aliases.add(raw.replace(/\s+/g, ''));
+  }
+
+  return Array.from(aliases).filter(Boolean);
+}
+
+async function ensureAuthenticated(page) {
+  const startButton = page.locator('button:has-text("Start")').first();
+  if (await startButton.count() > 0) {
+    await startButton.click({ timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(1500);
+  }
+
+  const firstNameInput = page.locator('input[placeholder="First Name"]').first();
+  const lastNameInput = page.locator('input[placeholder="Last Name"]').first();
+  const emailInput = page.locator('input[placeholder="Email"], input[type="email"]').first();
+  const passwordInput = page.locator('input[placeholder="Password"], input[type="password"]').first();
+
+  if (await emailInput.count() > 0 && await passwordInput.count() > 0) {
+    const firstName = process.env.FIRST_NAME || 'Automation';
+    const lastName = process.env.LAST_NAME || 'Tester';
+    const signedEmail = process.env.USERNAME || `${Date.now()}-${Math.random().toString(36).slice(2)}@example.com`;
+    const signedPassword = process.env.PASSWORD || 'ChallengePass123!';
+
+    await firstNameInput.fill(firstName).catch(() => {});
+    await lastNameInput.fill(lastName).catch(() => {});
+    await emailInput.fill(signedEmail).catch(() => {});
+    await passwordInput.fill(signedPassword).catch(() => {});
+
+    const signupButton = page.getByRole('button', { name: /^SIGN UP$/i }).first();
+    if (await signupButton.count() > 0) {
+      await signupButton.click({ timeout: 10000 }).catch(() => {});
+      await page.waitForTimeout(2500);
+    }
+  }
+}
+
 async function findFieldLocator(page, labelText) {
-  const labelTextNorm = labelText.toString().trim();
+  const labelTextNorm = String(labelText || '').trim();
+  const patterns = getFieldPatterns(labelTextNorm);
+
+  for (const pattern of patterns) {
+    const byId = page.locator(`[id*="${pattern}"]`).first();
+    if (await byId.count() > 0) return byId;
+
+    const byName = page.locator(`[name*="${pattern}"]`).first();
+    if (await byName.count() > 0) return byName;
+  }
+
   const labelLoc = page.locator(`label:has-text("${labelTextNorm}")`).first();
   if (await labelLoc.count() > 0) {
     const forAttr = await labelLoc.getAttribute('for');
@@ -162,14 +260,21 @@ function CSSescape(str) {
 }
 
 function escapeXpathText(text) {
-  if (text.indexOf('"') === -1) {
-    return text;
+  if (text === null || text === undefined) return '';
+  const value = String(text);
+  if (value.indexOf('"') === -1) {
+    return value;
   }
-  const parts = text.split('"').map(p => '"' + p + '"');
-  return 'concat(' + parts.join(', '\'' + '"' + '\'', ') + ')';
+  return value.replace(/"/g, "'");
 }
 
 (async () => {
+  const tmpDir = path.resolve(__dirname, 'playwright-tmp');
+  fs.mkdirSync(tmpDir, { recursive: true });
+  process.env.TMP = tmpDir;
+  process.env.TEMP = tmpDir;
+  process.env.TMPDIR = tmpDir;
+
   console.log('Reading file:', EXCEL_FILE);
   const rows = readExcel(EXCEL_FILE);
   console.log(`Rows read: ${rows.length}`);
@@ -182,38 +287,10 @@ function escapeXpathText(text) {
   await page.goto(SITE_URL, { waitUntil: 'domcontentloaded' });
 
   try {
-    const userInput = page.locator('input[type="email"], input[type="text"][name*=user], input[name*=email]').first();
-    const passInput = page.locator('input[type="password"]').first();
-
-    if (await userInput.count() > 0 && await passInput.count() > 0) {
-      console.log('Login form found on page — filling credentials.');
-      await userInput.fill(USERNAME);
-      await passInput.fill(PASSWORD);
-      const submitBtn = page.locator('button[type="submit"], button:has-text("Login"), input[type="submit"]').first();
-      if (await submitBtn.count() > 0) {
-        await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle', timeout: 10000 }).catch(() => {}), submitBtn.click()]);
-      }
-    } else {
-      const loginLink = page.locator('text=Login, text=Sign In, text=Sign in').first();
-      if (await loginLink.count() > 0) {
-        await loginLink.click().catch(() => {});
-        await page.waitForTimeout(1000);
-        const u = page.locator('input[type="email"], input[type="text"][name*=user], input[name*=email]').first();
-        const p = page.locator('input[type="password"]').first();
-        if (await u.count() > 0 && await p.count() > 0) {
-          await u.fill(USERNAME);
-          await p.fill(PASSWORD);
-          const sb = page.locator('button[type="submit"], button:has-text("Login"), input[type="submit"]').first();
-          if (await sb.count() > 0) {
-            await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle', timeout: 10000 }).catch(() => {}), sb.click()]);
-          }
-        }
-      } else {
-        console.log('No explicit login form/link found — assuming already logged in or site uses no-login for test.');
-      }
-    }
+    await ensureAuthenticated(page);
+    await page.waitForTimeout(1500);
   } catch (e) {
-    console.warn('Login step encountered an error, continuing:', e.message);
+    console.warn('Authentication step encountered an error, continuing:', e.message);
   }
 
   await page.waitForTimeout(1000);
