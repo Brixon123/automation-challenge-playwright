@@ -1,0 +1,20 @@
+automation-challenge/
+│
+├── data/
+│   └── challenge.xlsx
+│
+├── pages/
+│   ├── LoginPage.js
+│   └── ChallengePage.js
+│
+├── utils/
+│   └── excelReader.js
+│
+├── tests/
+│   └── automationChallenge.spec.js
+│
+├── playwright.config.js
+├── package.json
+├── .env
+├── .gitignore
+└── README.md
