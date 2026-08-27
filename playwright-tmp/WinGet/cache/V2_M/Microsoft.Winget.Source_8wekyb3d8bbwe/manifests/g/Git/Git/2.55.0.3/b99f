@@ -1,0 +1,91 @@
+Commands:
+- git
+Copyright: Copyright (C) 1989, 1991 Free Software Foundation, Inc.
+Description: 'Git is a free and open source distributed version control system designed
+  to handle everything from small to very large projects with speed and efficiency.
+
+  Git for Windows focuses on offering a lightweight, native set of tools that bring
+  the full feature set of the Git SCM to Windows while providing appropriate user
+  interfaces for experienced Git users and novices alike.'
+Documentations:
+- DocumentLabel: Wiki
+  DocumentUrl: https://github.com/git-for-windows/git/wiki
+ElevationRequirement: elevatesSelf
+FileExtensions:
+- gitattributes
+- gitignore
+- gitmodules
+- sh
+InstallerSwitches:
+  Silent: /SP- /VERYSILENT /SUPPRESSMSGBOXES /NORESTART
+  SilentWithProgress: /SP- /SILENT /SUPPRESSMSGBOXES /NORESTART
+InstallerType: inno
+Installers:
+- Architecture: x64
+  InstallerSha256: AF12577D0FDFF74243A5988197AA49B957D5044EDC17004F6DDF0768996F1DCA
+  InstallerUrl: https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.3/Git-2.55.0.3-64-bit.exe
+  Scope: user
+- Architecture: x64
+  InstallerSha256: AF12577D0FDFF74243A5988197AA49B957D5044EDC17004F6DDF0768996F1DCA
+  InstallerUrl: https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.3/Git-2.55.0.3-64-bit.exe
+  Scope: machine
+- Architecture: arm64
+  InstallerSha256: E3D7F5A2214F214F0A93CF0D8915DAB236A0E91C7DE6DE70A7DBDE9A61C794DB
+  InstallerUrl: https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.3/Git-2.55.0.3-arm64.exe
+  Scope: user
+- Architecture: arm64
+  InstallerSha256: E3D7F5A2214F214F0A93CF0D8915DAB236A0E91C7DE6DE70A7DBDE9A61C794DB
+  InstallerUrl: https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.3/Git-2.55.0.3-arm64.exe
+  Scope: machine
+License: GPL-2.0
+LicenseUrl: https://github.com/git-for-windows/build-extra/blob/HEAD/LICENSE.txt
+Localization:
+- Copyright: Copyright (C) Free Software Foundation, Inc.
+  Description: "Git \u662F\u4E00\u4E2A\u514D\u8D39\u5F00\u6E90\u7684\u5206\u5E03\u5F0F\u7248\u672C\u63A7\u5236\u7CFB\u7EDF\uFF0C\u65E8\u5728\u5FEB\u901F\u9AD8\u6548\u5730\u5904\u7406\u4ECE\u5C0F\u578B\u5230\u8D85\u5927\u578B\u7684\u5404\u79CD\u9879\u76EE\u3002\nGit
+    for Windows \u7684\u91CD\u70B9\u662F\u63D0\u4F9B\u4E00\u5957\u8F7B\u91CF\u7EA7\u7684\u672C\u5730\u5DE5\u5177\uFF0C\u5C06
+    Git SCM \u7684\u5168\u90E8\u529F\u80FD\u96C6\u5F15\u5165 Windows\uFF0C\u540C\u65F6\u4E3A\u6709\u7ECF\u9A8C\u7684
+    Git \u7528\u6237\u548C\u65B0\u624B\u63D0\u4F9B\u5408\u9002\u7684\u7528\u6237\u754C\u9762\u3002"
+  Documentations:
+  - DocumentLabel: "\u7EF4\u57FA"
+    DocumentUrl: https://github.com/git-for-windows/git/wiki
+  License: GPL-2.0
+  LicenseUrl: https://github.com/git-for-windows/build-extra/blob/HEAD/LICENSE.txt
+  PackageLocale: zh-CN
+  PackageName: Git
+  PackageUrl: https://gitforwindows.org/
+  Publisher: The Git Development Community
+  PublisherSupportUrl: https://github.com/git-for-windows/git/issues
+  PublisherUrl: https://gitforwindows.org/
+  ReleaseNotesUrl: https://github.com/git-for-windows/git/releases/tag/v2.55.0.windows.3
+  ShortDescription: "\u514D\u8D39\u5F00\u6E90\u7684\u5206\u5E03\u5F0F\u7248\u672C\u63A7\u5236\u7CFB\u7EDF"
+  Tags:
+  - git
+  - "\u7248\u672C\u63A7\u5236\u7CFB\u7EDF"
+ManifestType: merged
+ManifestVersion: 1.12.0
+Moniker: git
+PackageIdentifier: Git.Git
+PackageLocale: en-US
+PackageName: Git
+PackageUrl: https://gitforwindows.org/
+PackageVersion: 2.55.0.3
+Publisher: The Git Development Community
+PublisherSupportUrl: https://github.com/git-for-windows/git/issues
+PublisherUrl: https://gitforwindows.org/
+ReleaseDate: 2026-07-14
+ReleaseNotes: 'Changes since Git for Windows v2.55.0(2) (July 2nd 2026)
+
+  New Features
+
+  - Comes with Git Credential Manager v2.9.0.
+
+  Bug Fixes
+
+  - Fixes heap overflows in the credential helper wincred, see GHSA-rxqw-wxqg-g7hw
+  for full details.'
+ReleaseNotesUrl: https://github.com/git-for-windows/git/releases/tag/v2.55.0.windows.3
+ShortDescription: A free and open source distributed version control system
+Tags:
+- git
+- vcs
+UpgradeBehavior: install
